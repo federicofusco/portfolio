@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@radix-ui/react-icons";
-import { HTMLAttributes, useEffect, useRef } from "react";
+import { HTMLAttributes } from "react";
 
 interface SkillCard {
     name: string,
@@ -17,19 +17,23 @@ const SkillCard = ({ name, children, ...props }: SkillCard & HTMLAttributes<HTML
             <PlusIcon className="hidden sm:block absolute h-4 w-4 -bottom-2 -left-2 dark:text-white text-black" />
             <PlusIcon className="hidden sm:block absolute h-4 w-4 -bottom-2 -right-2 dark:text-white text-black" />
 
-
             <div className="bg-background py-2">
                 <h4 className="font-mono">{ name }</h4>
             </div>
             
-            <span className="font-mono text-xs text-muted-foreground">&lt;h3&gt;</span>
-            
-            <blockquote className="border-l border-muted-foreground pl-3 ml-3">{ children }</blockquote>
+            <div className="flex">
+                <span className="font-mono text-xs text-muted-foreground">&lt;</span>
+                <span className="font-mono text-xs text-green-400">h3</span>
+                <span className="font-mono text-xs text-muted-foreground">&gt;</span>
+            </div>
+
+            <blockquote className="border-l border-muted-foreground pl-4 ml-4">{ children }</blockquote>
             
             <div className="flex">
                 <span className="font-mono text-xs text-muted-foreground">&lt;</span>
                 <span className="text-xs text-muted-foreground">/</span>
-                <span className="font-mono text-xs text-muted-foreground">h3&gt;</span>
+                <span className="font-mono text-xs text-green-400">h3</span>
+                <span className="font-mono text-xs text-muted-foreground">&gt;</span>
             </div>
         </div>
     )

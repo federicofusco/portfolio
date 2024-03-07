@@ -77,3 +77,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+.link-underline {
+  border-bottom-width: 0;
+  background-image: linear-gradient(transparent, transparent), linear-gradient(rgb(34 197 94), rgb(34 197 94));
+  background-size: 0 3px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size .3s ease-in-out;
+}
+
+.link-underline:hover {
+  background-size: 50% 3px;
+  background-position: 0 100%
+}

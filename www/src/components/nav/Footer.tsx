@@ -18,20 +18,20 @@ const Footer = (): React.ReactNode => {
                     <Copyright className="sm:hidden text-right my-auto font-mono text-muted-foreground text-xs mr-4" />
 
                     <div className="hidden my-auto font-mono w-full font-semibold text-foreground sm:flex justify-end p-4">
-                        <Link href="/projects" className="mr-12">Projects</Link>
-                        <Link href="/resume" className="mr-12">Resume</Link>
-                        <Link href="https://blog.federicofusco.dev/?utm=web_footer" className="mr-12">Blog</Link>
-                        <Link href="/about" className="mr-12">About</Link>
+                        <Link href="/projects" className="link-underline mr-12">Projects</Link>
+                        <Link href="/resume" className="link-underline mr-12">Resume</Link>
+                        <Link href="https://blog.federicofusco.dev/?utm=web_footer" className="link-underline mr-12">Blog</Link>
+                        <Link href="/about" className="link-underline mr-12">About</Link>
                     </div>
                 </div>
 
                 <Separator />
 
                 <div className="sm:hidden my-auto font-mono w-full font-semibold text-foreground flex justify-between p-4">
-                    <Link href="/projects">Projects</Link>
-                    <Link href="/resume">Resume</Link>
-                    <Link href="https://blog.federicofusco.dev/?utm=web_footer">Blog</Link>
-                    <Link href="/about">About</Link>
+                    <Link href="/projects" className="link-underline">Projects</Link>
+                    <Link href="/resume" className="link-underline">Resume</Link>
+                    <Link href="https://blog.federicofusco.dev/?utm=web_footer" className="link-underline">Blog</Link>
+                    <Link href="/about" className="link-underline">About</Link>
                 </div>
 
                 <div className="hidden sm:flex py-4">

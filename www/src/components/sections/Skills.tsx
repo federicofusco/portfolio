@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Section from "../Section";
-import SkillCard from "../SkillCard";
+import SkillCard from "../card/SkillCard";
 
 const Skills = (): React.ReactNode => {
     return (
