@@ -19,7 +19,7 @@ const Hero = (): React.ReactNode => {
 
         <Code className="text-sm">
             hello();<br />
-            let adjective = "<CodeInput onValueChange={setAdjective} defaultValue={initalAdjective} />";
+            let adjective = &quot;<CodeInput onValueChange={setAdjective} defaultValue={initalAdjective} />&quot;;
         </Code>
 
         <br />
