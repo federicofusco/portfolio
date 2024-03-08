@@ -12,7 +12,7 @@ const Hero = (): React.ReactNode => {
     const [adjective, setAdjective] = useState<string | undefined>(initalAdjective);
 
 
-    return <section className="w-screen h-screen pt-[104px] px-8">
+    return <section className="w-screen h-[calc(100vh-64px)] pt-[104px] px-8">
         <DotBackground className="w-full h-full absolute -z-10 top-0 left-0">
             <Boids />
         </DotBackground>
