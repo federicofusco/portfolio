@@ -293,9 +293,7 @@ class Prey extends Boid {
         const predators = this.getVisiblePredators(world);
 
         // If any predators are present, avoid them at all costs
-        if (predators.length > 0) {
-            this.avoidPredator(predators);
-        }
+        if (predators.length > 0) this.avoidPredator(predators);
 
         // Flock
         this.separate(world.prey);
