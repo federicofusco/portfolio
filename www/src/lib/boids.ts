@@ -1,30 +1,22 @@
-/**
- * This file describes the flocking simulation on the homepage.
- * 
- * Note: I haven't wrote the documentation or refactored the code 
- * yet so it's a bit messy, but I *will* do it. Eventually. Probably.
- * 
- * It's never going to happen is it?
- */
-
 import { RefObject } from "react";
 import * as three from "three";
 
 class Boid {
     velocity: three.Vector3;
     acceleration: three.Vector3 = new three.Vector3(0, 0, 0);
-    color: number = 0x79B6EF;
     size: number = 0.1;
-    minSpeed: number = 0.03;
-    maxSpeed: number = 0.07;
-    maxForce: number = 0.004;
-    visibilityRadiusSq: number = 2.5 * 2.5;
-    eatingRadiusSq: number = 0.2 * 0.2;
-    foodStrength: number = 1;
-    survivalStrength: number = 1.5;
+    minSpeed: number;
+    maxSpeed: number;
+    maxForce: number;
+    color: number;
     mesh: three.Group;
 
-    constructor (viewportSize: three.Vector2) {
+    constructor(color: number, minSpeed: number, maxSpeed: number, maxForce: number) {
+
+        this.color = color;
+        this.minSpeed = minSpeed;
+        this.maxSpeed = maxSpeed;
+        this.maxForce = maxForce;
 
         // Sets a random velocity
         this.velocity = new three.Vector3()
@@ -36,14 +28,6 @@ class Boid {
         this.mesh = new three.Group();
         this.renderBody();
 
-        this.mesh.position
-            .randomDirection()
-            .multiplyScalar(10)
-            .clamp(
-                new three.Vector3(-viewportSize.x, -viewportSize.y, 0),
-                new three.Vector3( viewportSize.x,  viewportSize.y, 0)
-            )
-            .setZ(0);
     }
 
     renderBody(): void {
@@ -60,12 +44,13 @@ class Boid {
         this.mesh.add(new three.Mesh (geometry, material));
     }
 
-    /**
-     * Returns a force that moves the boids towards the given target
-     * 
-     * @param target - The position of the target
-     * @returns A vector
-     */
+    rotate(): void {
+        if (this.velocity.x >= 0)
+            this.mesh.rotation.z = 2 * Math.PI - this.velocity.angleTo(new three.Vector3(0, 1, 0));
+        else 
+            this.mesh.rotation.z = this.velocity.angleTo(new three.Vector3(0, 1, 0));
+    }
+
     seek(target: three.Vector3): three.Vector3 {
         let desired = target
             .clone()
@@ -74,7 +59,28 @@ class Boid {
 
         return desired
             .sub(this.velocity)
-            .clampLength(0, this.maxForce);        
+            .clampLength(0, this.maxForce);
+    }
+}
+
+class Prey extends Boid {
+    visibilityRadiusSq: number = 2.5 * 2.5;
+    eatingRadiusSq: number = 0.2 * 0.2;
+    foodStrength: number = 1;
+    survivalStrength: number = 1.5;
+
+    constructor (viewportSize: three.Vector2) {
+
+        super(0x79B6EF, 0.03, 0.07, 0.004);
+
+        this.mesh.position
+            .randomDirection()
+            .multiplyScalar(10)
+            .clamp(
+                new three.Vector3(-viewportSize.x, -viewportSize.y, 0),
+                new three.Vector3( viewportSize.x,  viewportSize.y, 0)
+            )
+            .setZ(0);
     }
 
     /**
@@ -96,13 +102,6 @@ class Boid {
 
         // Updates the acceleration
         this.acceleration.set (0, 0, 0);
-    }
-
-    rotate(): void {
-        if (this.velocity.x >= 0)
-            this.mesh.rotation.z = 2 * Math.PI - this.velocity.angleTo(new three.Vector3(0, 1, 0));
-        else 
-            this.mesh.rotation.z = this.velocity.angleTo(new three.Vector3(0, 1, 0));
     }
 
     getVisiblePredators(world: World): any {
@@ -130,7 +129,7 @@ class Boid {
         this.mesh.position.z = 1000;
     }
 
-    separate(boids: Boid[]): void {
+    separate(boids: Prey[]): void {
         const separationDistanceSq: number = 0.5 * 0.5;
         const separationStrength: number = 1.4;
         
@@ -160,7 +159,7 @@ class Boid {
         this.acceleration.add(sum)
     }
 
-    align(boids: Boid[]): void {
+    align(boids: Prey[]): void {
         const alignmentDistanceSq: number = 1;
         const alignmentStrength: number = 1.2;
 
@@ -186,7 +185,7 @@ class Boid {
         this.acceleration.add(sum);
     }
 
-    group(boids: Boid[]): void {
+    group(boids: Prey[]): void {
         const cohesionDistanceSq: number = 1;
         const cohesionStrength: number = 0.8;
 
@@ -245,9 +244,9 @@ class Boid {
         }
 
         // Flock
-        this.separate(world.boids);
-        this.align(world.boids);
-        this.group(world.boids);
+        this.separate(world.prey);
+        this.align(world.prey);
+        this.group(world.prey);
 
         // Keeps the boid within the screen
         this.boundaries(world.viewportSize);
@@ -256,31 +255,17 @@ class Boid {
 }
 
 // TODO: Fix bugs. Implement pursuit (ex 5.3)
-class Predator {
-    velocity: three.Vector3;
-    acceleration: three.Vector3 = new three.Vector3(0, 0, 0);
-    size: number = 0.1;
-    minSpeed: number = 0.01;
-    maxSpeed: number = 0.07;
-    maxForce: number = 0.03;
+class Predator extends Boid {
     wanderTheta: number = 0.0;
-    color: number = 0xFF0000;
     visibilityAngle: number = 1;
     visibilityRadiusSq: number = 1.5 * 1.5;
     eatingRadiusSq: number = 0.25 * 0.25; 
-    mesh: three.Group;
 
     constructor () {
 
-        // Sets a random velocity
-        this.velocity = new three.Vector3()
-            .randomDirection()
-            .clampLength(this.minSpeed, this.maxSpeed)
-            .setZ(0);
+        super(0xFF0000, 0.01, 0.07, 0.03);
 
-        // Creates the group
-        this.mesh = new three.Group();
-        this.renderBody();
+        // Renders the visibility arc
         this.renderVisibility();
 
         // Positions the group
@@ -288,20 +273,6 @@ class Predator {
             .random()
             .multiplyScalar(10)
             .setZ(0);
-    }
-
-    renderBody(): void {
-        const geometry = new three.BufferGeometry ()
-            .setFromPoints ([
-                new three.Vector3(0, 0, 0),
-                new three.Vector3(this.size, 0, 0),
-                new three.Vector3(this.size / 2, this.size * 2, 0),
-            ]);
-        const material = new three.MeshBasicMaterial ({
-            wireframe: true,
-            color: this.color
-        });
-        this.mesh.add(new three.Mesh (geometry, material));
     }
 
     renderVisibility(): void {
@@ -344,15 +315,8 @@ class Predator {
         this.acceleration.set(0, 0, 0);
     }
 
-    rotate(): void {
-        if (this.velocity.x >= 0)
-            this.mesh.rotation.z = 2 * Math.PI - this.velocity.angleTo(new three.Vector3(0, 1, 0));
-        else 
-            this.mesh.rotation.z = this.velocity.angleTo(new three.Vector3(0, 1, 0));
-    }
-
-    closestVisibleBoid(boids: Boid[]): Boid | null {
-        let closestBoid: Boid | null = null;
+    closestVisibleBoid(boids: Prey[]): Prey | null {
+        let closestBoid: Prey | null = null;
         let closestDistanceSq: number = 1_000_000; // Infinity
 
         for (const boid of boids) {
@@ -369,24 +333,6 @@ class Predator {
         }
 
         return closestBoid;
-    }
-
-    /**
-     * Returns a force that moves the predator towards the given target
-     * 
-     * @param target - The position of the target
-     * @returns A vector
-     */
-    seek(target: three.Vector3): three.Vector3 {
-        let desired: three.Vector3 = target
-            .clone()
-            .sub(this.mesh.position)
-            .clampLength(this.minSpeed, this.maxSpeed);
-
-        return desired
-            .sub(this.velocity)
-            .clampLength(0, this.maxForce)
-            .setZ(0); 
     }
 
     wander(): void {
@@ -413,7 +359,7 @@ class Predator {
     update(world: World): void {
 
         // Finds the nearest visible boid
-        const closestVisibleBoid = this.closestVisibleBoid(world.boids);
+        const closestVisibleBoid = this.closestVisibleBoid(world.prey);
 
         // If any are visible, eat them.
         if (closestVisibleBoid !== null) {
@@ -427,7 +373,7 @@ class Predator {
 }
 
 class World {
-    boids: Boid[] = [];
+    prey: Prey[] = [];
     predators: Predator[] = [];
     viewportSize: three.Vector2;
     scene: three.Scene;
@@ -467,9 +413,9 @@ class World {
     }
 
     addBoid(): void {
-        const boid = new Boid(this.viewportSize);
-        this.boids.push(boid);
-        this.scene.add(boid.mesh);
+        const bird = new Prey(this.viewportSize);
+        this.prey.push(bird);
+        this.scene.add(bird.mesh);
     }
 
     addPredator(visible?: boolean): void {
@@ -498,7 +444,7 @@ class World {
         this.predators[1].update(this);
         this.predators[1].move(this.viewportSize);
 
-        for (const boid of this.boids) { 
+        for (const boid of this.prey) { 
             boid.update(this);
             boid.move();
         }
@@ -524,7 +470,7 @@ class World {
 }
 
 export {
-    Boid,
+    Prey,
     Predator,
     World,
 };
