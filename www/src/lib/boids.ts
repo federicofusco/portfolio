@@ -2,17 +2,26 @@ import { RefObject } from "react";
 import * as three from "three";
 
 class Boid {
+    // The boid's velocity and direction
     velocity: three.Vector3;
+    // The boid's variation of velocity
     acceleration: three.Vector3 = new three.Vector3(0, 0, 0);
+    // The height:base ratio of the boid's body
     size: number = 0.1;
+    // The minimum speed
     minSpeed: number;
+    // The maximum speed
     maxSpeed: number;
+    // The maximum force that can be applied to the acceleration
     maxForce: number;
+    // The boid's color
     color: number;
+    // The boid's mesh
     mesh: three.Group;
 
     constructor(color: number, minSpeed: number, maxSpeed: number, maxForce: number) {
 
+        // Sets the constants
         this.color = color;
         this.minSpeed = minSpeed;
         this.maxSpeed = maxSpeed;
@@ -30,6 +39,10 @@ class Boid {
 
     }
 
+    /**
+     * Renders the boid's body: a triangle of base this.size
+     * and height 2 * this.size. 
+     */
     renderBody(): void {
         const geometry = new three.BufferGeometry ()
             .setFromPoints ([
@@ -44,6 +57,10 @@ class Boid {
         this.mesh.add(new three.Mesh (geometry, material));
     }
 
+    /**
+     * Rotates the boid's mesh based on the angle (in radians)
+     * that the velocity forms with the Y-axis
+     */
     rotate(): void {
         if (this.velocity.x >= 0)
             this.mesh.rotation.z = 2 * Math.PI - this.velocity.angleTo(new three.Vector3(0, 1, 0));
@@ -51,6 +68,13 @@ class Boid {
             this.mesh.rotation.z = this.velocity.angleTo(new three.Vector3(0, 1, 0));
     }
 
+    /**
+     * Returns a vector that (when applied to a boid's acceleration)
+     * will push it towards the given target. 
+     * 
+     * @param target - The position that the boid desires
+     * @returns A vector
+     */
     seek(target: three.Vector3): three.Vector3 {
         let desired = target
             .clone()
@@ -64,15 +88,16 @@ class Boid {
 }
 
 class Prey extends Boid {
+    // The radius in which the prey can see
+    // It's squared here to save time calculating distances
     visibilityRadiusSq: number = 2.5 * 2.5;
-    eatingRadiusSq: number = 0.2 * 0.2;
-    foodStrength: number = 1;
     survivalStrength: number = 1.5;
 
     constructor (viewportSize: three.Vector2) {
 
         super(0x79B6EF, 0.03, 0.07, 0.004);
 
+        // Sets a random initial position
         this.mesh.position
             .randomDirection()
             .multiplyScalar(10)
@@ -84,7 +109,7 @@ class Prey extends Boid {
     }
 
     /**
-     * Updates the boid's velocity and position. 
+     * Updates the prey's velocity and position. 
      * Resets the acceleration.
      */
     move (): void {
@@ -104,7 +129,13 @@ class Prey extends Boid {
         this.acceleration.set (0, 0, 0);
     }
 
-    getVisiblePredators(world: World): any {
+    /**
+     * Checks if there are any predators within the prey's visibility
+     * 
+     * @param world - The current world
+     * @returns An array of predators
+     */
+    getVisiblePredators(world: World): Predator[] {
         let predators: Predator[] = [];
 
         for (const predator of world.predators) {
@@ -115,15 +146,27 @@ class Prey extends Boid {
         return predators;
     }
 
+    /**
+     * Inverts the seeking vector for the position of the nearest predator
+     * and applies it to the acceleration. In other words it steers the prey
+     * away from the predator ignoring everything else.
+     * 
+     * @param predators - An array containing all the visible predators
+     */
     avoidPredator(predators: Predator[]): void {
         this.acceleration.add(
             this.seek(predators[0].mesh.position)
                 .multiplyScalar(this.survivalStrength)
                 .clampLength(this.maxSpeed, this.maxSpeed)
                 .negate()
+                .setZ(0)
         );
     }
 
+    /**
+     * When a prey get's eaten
+     * This doesn't actually remove the boid from the World array, but it makes it invisible
+     */
     eat(): void {
         this.mesh.visible = false;
         this.mesh.position.z = 1000;
@@ -208,6 +251,13 @@ class Prey extends Boid {
         this.acceleration.add(sum);
     }
 
+    /**
+     * Steers the prey away from the borders of the viewport. 
+     * This is to keep it from going offscreen and to add some
+     * variability in the group's movement
+     * 
+     * @param viewportSize - The size of the viewport
+     */
     boundaries(viewportSize: three.Vector2): void {
         const margin: number = 1;
         const halfWidth = viewportSize.x / 2;
@@ -232,6 +282,11 @@ class Prey extends Boid {
         }
     }
 
+    /**
+     * Updates the prey
+     * 
+     * @param world - The world
+     */
     update (world: World): void {
 
         // Gets everything visible to the boid
@@ -240,7 +295,6 @@ class Prey extends Boid {
         // If any predators are present, avoid them at all costs
         if (predators.length > 0) {
             this.avoidPredator(predators);
-            return;
         }
 
         // Flock
