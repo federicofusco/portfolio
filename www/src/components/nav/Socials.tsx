@@ -7,14 +7,14 @@ import Link from "next/link";
 const Socials = (): React.ReactNode => {
     return (
         <>
-            <Button variant="ghost" size="icon">
-                <Link target="_blank" href="https://www.instagram.com/federicofusco0">
+            <Button variant="ghost" title="Instagram" size="icon">
+                <Link target="_blank" title="Instagram" href="https://www.instagram.com/federicofusco0">
                     <InstagramLogoIcon className="h-5 w-5 m-auto" />
                 </Link>
             </Button>
 
-            <Button variant="ghost" size="icon">
-                <Link target="_blank" href="https://www.github.com/federicofusco">
+            <Button variant="ghost" title="GitHub" size="icon">
+                <Link target="_blank" title="GitHub" href="https://www.github.com/federicofusco">
                     <GitHubLogoIcon className="h-5 w-5 m-auto" />
                 </Link>
             </Button>

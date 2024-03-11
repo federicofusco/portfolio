@@ -7,7 +7,7 @@ import Section from "../Section";
 
 const About = (): React.ReactNode => {
     return (
-        <Section title="Hey! I'm Federico," name="about">
+        <Section subtitle="" title="Hey! I'm Federico," name="about">
             <div className="md:max-w-lg">
                 <p className="mt-2">
                     currently a {new Date().getFullYear() - 2007} year old highschool student based in Milan, IT. 

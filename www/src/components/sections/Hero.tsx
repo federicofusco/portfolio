@@ -17,9 +17,9 @@ const Hero = (): React.ReactNode => {
             <Boids />
         </DotBackground>
 
-        <Code className="text-sm">
+        <Code className="text-sm" id="adjective-input">
             hello();<br />
-            let adjective = &quot;<CodeInput onValueChange={setAdjective} defaultValue={initalAdjective} />&quot;;
+            let adjective = &quot;<CodeInput label="adjective-input" onValueChange={setAdjective} defaultValue={initalAdjective} />&quot;;
         </Code>
 
         <br />

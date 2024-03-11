@@ -2,7 +2,6 @@
 
 import DotBackground from "@/components/DotBackground";
 import Boids from "@/components/interactive/Boids";
-import { Metadata } from "next";
 import Link from "next/link";
 
 const NotFound = (): React.ReactNode => {

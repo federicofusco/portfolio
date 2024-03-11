@@ -17,7 +17,7 @@ const Section = ({ name, subtitle, title, children, ...props }: SectionProps & H
             <SectionHeader>{ name }</SectionHeader>
 
             <div className="mx-8">
-                { subtitle && <p className="mt-4 text-xs text-muted-foreground">{ subtitle }</p> }
+                { subtitle && <span className="mt-4 text-xs text-muted-foreground">{ subtitle }</span> }
                 { title && <h3 className="text-xl">{ title }</h3> }
 
                 { children }
